@@ -30,11 +30,11 @@
     </form>
 
     <script>
-        // Automatically close flashed messages after 1 second
+        // Automatically close flashed messages after 3 seconds
         setTimeout(function() {
             document.querySelectorAll('.alert').forEach(function(alert) {
                 alert.classList.add('visually-hidden');
             });
-        }, 1000);
+        }, 3000);
     </script>
 {% endblock %}
