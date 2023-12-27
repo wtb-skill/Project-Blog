@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <h3>Dodaj nowy wpis</h3>
+
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label for="title">Tytuł wpisu</label>
+            {{ form.title(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            <label for="body">Treść</label>
+            {{ form.body(class_="form-control", cols="100", rows="20") }}
+        </div>
+        <div class="form-check">
+            {{ form.is_published(class_="form-check-input") }}
+            <label class="form-check-label" for="is_published">Wpis opublikowany</label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-5">Zapisz</button>
+    </form>
+
+    <script>
+        // Automatically close flashed messages after 1 second
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                alert.classList.add('visually-hidden');
+            });
+        }, 1000);
+    </script>
+{% endblock %}
