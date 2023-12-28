@@ -5,8 +5,17 @@ from blog import app
 from blog.models import Entry, db
 from blog.forms import EntryForm
 from blog.forms import LoginForm
-from wtforms.validators import ValidationError
+import functools
 
+
+def login_required(view_func):
+    @functools.wraps(view_func)
+    def check_permissions(*args, **kwargs):
+        if session.get('logged_in'):
+            return view_func(*args, **kwargs)
+        return redirect(url_for('login', next=request.path))
+
+    return check_permissions
 
 
 @app.route("/")
@@ -17,6 +26,7 @@ def index():
 
 @app.route("/post/", methods=["GET", "POST"])
 @app.route("/post/<int:entry_id>", methods=["GET", "POST"])
+@login_required
 def edit_or_create_entry(entry_id=None):
     form = EntryForm()
     errors = None
@@ -73,3 +83,6 @@ def logout():
         session.clear()
         flash('You are now logged out.', 'success')
     return redirect(url_for('index'))
+
+
+
