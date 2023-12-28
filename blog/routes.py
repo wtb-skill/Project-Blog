@@ -5,6 +5,8 @@ from blog import app
 from blog.models import Entry, db
 from blog.forms import EntryForm
 from blog.forms import LoginForm
+from wtforms.validators import ValidationError
+
 
 
 @app.route("/")
@@ -58,7 +60,10 @@ def login():
             flash('You are now logged in.', 'success')
             return redirect(next_url or url_for('index'))
         else:
-            errors = form.errors
+            # errors = form.errors
+            flash('Invalid username or password', 'error')  # Flash an error message
+            return redirect(url_for('login'))  # Redirect back to the login page
+
     return render_template("login_form.html", form=form, errors=errors)
 
 
