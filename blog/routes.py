@@ -90,3 +90,19 @@ def logout():
 def list_drafts():
     drafts = Entry.query.filter_by(is_published=False).order_by(Entry.pub_date.desc())
     return render_template("drafts.html", drafts=drafts)
+
+
+@app.route("/delete/<int:entry_id>", methods=["POST"])
+@login_required
+def delete_entry(entry_id=None):
+    if request.method == 'POST':
+        entry = Entry.query.get_or_404(entry_id) if entry_id else None
+
+        if entry:
+            db.session.delete(entry)
+            db.session.commit()
+            flash('Entry deleted successfully!', 'success')
+        else:
+            flash('Entry not found or already deleted.', 'error')
+
+    return redirect(url_for('index'))

@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block content %}
@@ -10,6 +9,7 @@
        <th scope="col">Tytuł</th>
        <th scope="col">Treść</th>
        <th scope="col"></th>
+       <th scope="col"></th> <!-- Column for the delete button -->
      </tr>
    </thead>
    <tbody>
@@ -24,6 +24,12 @@
            </a>
        </td>
        <td>{{ post.body|truncate(100, true) }}</td>
+       <td>
+           <form action="{{ url_for('delete_entry', entry_id=post.id) }}" method="POST"
+                 onsubmit="return confirm('Are you sure you want to delete this entry?');">
+               <button type="submit" class="btn btn-danger">Usuń</button>
+           </form>
+       </td>
      </tr>
      {% endfor %}
    </tbody>
