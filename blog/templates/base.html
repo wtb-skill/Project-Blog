@@ -35,6 +35,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('edit_or_create_entry') }}">New Entry</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('list_drafts') }}">Drafts</a>
+                    </li>
                 </ul>
                     {% if session.logged_in %}
                         <form class="d-flex" action="{{ url_for('logout') }}" method="POST">
