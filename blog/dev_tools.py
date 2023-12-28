@@ -1,4 +1,4 @@
-# dev_tools
+# blog/dev_tools
 
 from faker import Faker
 from blog.models import Entry, db

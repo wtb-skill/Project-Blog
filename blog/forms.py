@@ -1,6 +1,5 @@
 # blog/forms.py
 
-# from werkzeug.routing import ValidationError # creates error
 from wtforms.validators import ValidationError
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, BooleanField, PasswordField

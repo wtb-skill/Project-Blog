@@ -3,11 +3,12 @@
 {% block content %}
 
 <table class="table">
+   <caption>A list of drafts with their details and options to edit or delete.</caption>
    <thead>
      <tr>
-       <th scope="col">Data</th>
-       <th scope="col">Tytuł</th>
-       <th scope="col">Treść</th>
+       <th scope="col">Date</th>
+       <th scope="col">Title</th>
+       <th scope="col">Contents</th>
        <th scope="col"></th>
        <th scope="col"></th> <!-- Column for the delete button -->
      </tr>
@@ -27,7 +28,7 @@
        <td>
            <form action="{{ url_for('delete_entry', entry_id=post.id) }}" method="POST"
                  onsubmit="return confirm('Are you sure you want to delete this entry?');">
-               <button type="submit" class="btn btn-danger">Usuń</button>
+               <button type="submit" class="btn btn-danger">Delete</button>
            </form>
        </td>
      </tr>

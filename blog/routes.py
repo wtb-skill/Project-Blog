@@ -70,7 +70,6 @@ def login():
             flash('You are now logged in.', 'success')
             return redirect(next_url or url_for('index'))
         else:
-            # errors = form.errors
             flash('Invalid username or password', 'error')  # Flash an error message
             return redirect(url_for('login'))  # Redirect back to the login page
 
