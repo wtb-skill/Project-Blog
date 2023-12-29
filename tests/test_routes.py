@@ -14,52 +14,53 @@ def client():
         yield client
 
 
-def test_homepage(client):
-    response = client.get('/')
+@pytest.fixture
+def logged_in_client():
+    with app.test_client() as client:
+        with client.session_transaction() as session:
+            session['logged_in'] = True
+        yield client
+
+
+@pytest.fixture
+def logged_out_client():
+    with app.test_client() as client:
+        with client.session_transaction() as session:
+            session['logged_in'] = False
+        yield client
+
+
+def test_login_access(logged_out_client):
+    response = logged_out_client.get('/login/')
     assert response.status_code == 200
 
 
-def test_login(client):
-    response = client.get('/login/')
-    assert response.status_code == 200
+def test_logout_access(logged_in_client):
+    response = logged_in_client.post('/logout/')
 
-
-def test_edit_or_create_entry_for_logged_in_user(client):
-    with client.session_transaction() as session:
-        session['logged_in'] = True
-
-    response = client.get('/post/')
-    assert response.status_code == 200
-
-
-def test_edit_or_create_entry_for_logged_out_user(client):
-    with client.session_transaction() as session:
-        session['logged_in'] = False
-
-    response = client.get('/post/')
-    assert response.status_code == 302  # Redirects to /login/
-
-
-def test_logout(client):
-    # Assuming a logged-in user for this test
-    with client.session_transaction() as session:
-        session['logged_in'] = True
-
-    response = client.post('/logout/')
     assert response.status_code == 302  # Redirects to index after logout
 
 
-def test_list_drafts_for_logged_in_user(client):
-    with client.session_transaction() as session:
-        session['logged_in'] = True
+def test_homepage_access(logged_in_client, logged_out_client):
+    response_logged_in = logged_in_client.get('/')
+    response_logged_out = logged_out_client.get('/')
 
-    response = client.get('/drafts/')
-    assert response.status_code == 200
+    assert response_logged_in.status_code == 200
+    assert response_logged_out.status_code == 200
 
 
-def test_list_drafts_for_logged_out_user(client):
-    with client.session_transaction() as session:
-        session['logged_in'] = False
+def test_entry_editing_and_creation_access(logged_in_client, logged_out_client):
+    response_logged_in = logged_in_client.get('/post/')
+    response_logged_out = logged_out_client.get('/post/')
 
-    response = client.get('/drafts/')
-    assert response.status_code == 302  # Redirects to /login/
+    assert response_logged_in.status_code == 200
+    assert response_logged_out.status_code == 302  # Redirects to /login/
+
+
+def test_list_drafts_access(logged_in_client, logged_out_client):
+    response_logged_in = logged_in_client.get('/drafts/')
+    response_logged_out = logged_out_client.get('/drafts/')
+
+    assert response_logged_in.status_code == 200
+    assert response_logged_out.status_code == 302  # Redirects to /login/
+
