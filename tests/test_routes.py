@@ -1,7 +1,7 @@
 from flask import url_for
-from blog import app
+from blog import app, db, models
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 from blog.models import Entry
 from blog.routes import delete_entry
 from flask import Flask
@@ -64,3 +64,48 @@ def test_list_drafts_access(logged_in_client, logged_out_client):
     assert response_logged_in.status_code == 200
     assert response_logged_out.status_code == 302  # Redirects to /login/
 
+
+# WORKS
+def test_delete_existing_entry(logged_in_client):
+    with app.app_context():  # Activate the app context for database operations
+        # Create an entry
+        entry = Entry(title='Test Title', body='Test Body', is_published=True)
+        db.session.add(entry)
+        db.session.commit()
+
+        # Get the entry ID for deletion
+        entry_id = entry.id
+
+        # Delete the entry
+        response = logged_in_client.post(f'/delete/{entry_id}')
+
+        # Check if the entry is deleted successfully
+        assert response.status_code == 302  # Redirects to index after deletion
+        assert Entry.query.get(entry_id) is None
+
+# DOESNT WORK
+def test_delete_entry_with_mocked_db(logged_in_client, monkeypatch):
+    with app.app_context():
+        # Create a mock entry
+        entry = Entry(id=1, title='Test Title', body='Test Body', is_published=True)
+
+        # Mocking the database functions
+        mock_get_or_404 = Mock(return_value=entry)
+        mock_delete = Mock()
+        mock_commit = Mock()
+
+        # Patching the actual functions with mocks
+        monkeypatch.setattr('blog.routes.Entry.query.get_or_404', mock_get_or_404)
+        monkeypatch.setattr('blog.routes.db.session.delete', mock_delete)
+        monkeypatch.setattr('blog.routes.db.session.commit', mock_commit)
+
+        # Make the request to delete the entry
+        response = logged_in_client.post('/delete/1')
+
+        # Assertions
+        mock_get_or_404.assert_called_once_with(1)
+        mock_delete.assert_called_once_with(entry)
+        mock_commit.assert_called_once()
+
+        assert response.status_code == 302  # Check if it redirects
+        assert response.headers['Location'] == url_for('index')  # Check if it redirects to index
