@@ -54,45 +54,94 @@
 #         assert Entry.query.get(entry_id) is None
 
 from flask import Flask
-import unittest
+# import unittest
+#
+# from blog import db, app
+# from blog.models import Entry
+# from config import TestConfig
+#
+#
+# class TestEntryDeletion(unittest.TestCase):
+#
+#     def setUp(self):
+#         """
+#         Creates a new database for the unit test to use
+#         """
+#         app.config.from_object(TestConfig)  # Use a separate test config
+#         self.app = app
+#         self.client = self.app.test_client()
+#         with self.app.app_context():
+#             db.create_all()
+#
+#     def tearDown(self):
+#         """
+#         Ensures that the database is emptied for the next unit test
+#         """
+#         with self.app.app_context():
+#             db.session.remove()
+#             db.drop_all()
+#
+#     def test_delete_entry(self):
+#         with self.app.app_context():  # Activate the app context for database operations
+#             # Create an entry
+#             entry = Entry(title='Test Title', body='Test Body', is_published=True)
+#             db.session.add(entry)
+#             db.session.commit()
+#
+#             # Get the entry ID for deletion
+#             entry_id = entry.id
+#
+#             # Delete the entry
+#             response = self.client.post(f'/delete/{entry_id}')
+#
+#             # Check if the entry is deleted successfully
+#             assert response.status_code == 302  # Redirects to index after deletion
+#             assert Entry.query.get(entry_id) is None
 
+import pytest
+from flask import Flask
 from blog import db, app
 from blog.models import Entry
+from config import TestConfig
 
 
-class TestEntryDeletion(unittest.TestCase):
+import pytest
+from flask import Flask
+from blog import db, app
+from blog.models import Entry
+from config import TestConfig
 
-    def setUp(self):
-        """
-        Creates a new database for the unit test to use
-        """
-        app.config.from_object("config.TestConfig")  # Use a separate test config
-        self.app = app
-        self.client = self.app.test_client()
-        with self.app.app_context():
-            db.create_all()
 
-    def tearDown(self):
-        """
-        Ensures that the database is emptied for the next unit test
-        """
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
+@pytest.fixture(scope='function')
+def app_client():
+    app.config.from_object(TestConfig)
+    app.testing = True
+    client = app.test_client()
 
-    def test_delete_entry(self):
-        with self.app.app_context():  # Activate the app context for database operations
-            # Create an entry
-            entry = Entry(title='Test Title', body='Test Body', is_published=True)
-            db.session.add(entry)
-            db.session.commit()
+    with app.app_context():
+        db.create_all()
 
-            # Get the entry ID for deletion
-            entry_id = entry.id
+    yield client
 
-            # Delete the entry
-            response = self.client.post(f'/delete/{entry_id}')
+    with app.app_context():
+        db.drop_all()
 
-            # Check if the entry is deleted successfully
-            assert response.status_code == 302  # Redirects to index after deletion
-            assert Entry.query.get(entry_id) is None
+
+def test_delete_entry(app_client):
+    client = app_client
+    with app.app_context():  # Activate the app context for database operations
+        # Create an entry
+        entry = Entry(title='Test Title', body='Test Body', is_published=True)
+        db.session.add(entry)
+        db.session.commit()
+
+        # Get the entry ID for deletion
+        entry_id = entry.id
+
+        # Delete the entry
+        response = client.post(f'/delete/{entry_id}')
+
+        # Check if the entry is deleted successfully
+        assert response.status_code == 302  # Redirects to index after deletion
+        assert Entry.query.get(entry_id) is None
+
