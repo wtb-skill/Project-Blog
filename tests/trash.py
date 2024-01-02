@@ -26,6 +26,15 @@
 #         assert response.status_code == 302  # Check if it redirects
 #         assert response.headers['Location'] == url_for('index')  # Check if it redirects to index
 #
+from flask import url_for
+from blog import app, db, models
+from config import TestConfig
+import pytest
+from unittest.mock import patch, MagicMock, Mock
+from blog.models import Entry
+from blog.routes import delete_entry
+from flask import Flask
+
 
 # def test_delete_entry_with_mocked_db(logged_in_client, monkeypatch):
 #     with app.app_context():

@@ -46,44 +46,44 @@ def app_client():
         db.drop_all()
 
 
-# def test_login_access(logged_out_client):
-#     response = logged_out_client.get('/login/')
-#     assert response.status_code == 200
-#
-#
-# def test_logout_access(logged_in_client):
-#     response = logged_in_client.post('/logout/')
-#
-#     assert response.status_code == 302
-#     assert response.headers['Location'] == url_for('index')
+def test_login_access(logged_out_client, app_client):
+    response = logged_out_client.get('/login/')
+    assert response.status_code == 200
 
 
-# def test_homepage_access(logged_in_client, logged_out_client):
-#     response_logged_in = logged_in_client.get('/')
-#     response_logged_out = logged_out_client.get('/')
-#
-#     assert response_logged_in.status_code == 200
-#     assert response_logged_out.status_code == 200
+def test_logout_access(logged_in_client, app_client):
+    response = logged_in_client.post('/logout/')
+
+    assert response.status_code == 302
+    assert response.headers['Location'] == url_for('index')
 
 
-# def test_entry_editing_and_creation_access(logged_in_client, logged_out_client):
-#     url = '/post/'
-#     response_logged_in = logged_in_client.get(url)
-#     response_logged_out = logged_out_client.get(url)
-#
-#     assert response_logged_in.status_code == 200
-#     assert response_logged_out.status_code == 302
-#     assert response_logged_out.headers['Location'] == url_for('login', next=url)
-#
-#
-# def test_list_drafts_access(logged_in_client, logged_out_client):
-#     url = '/drafts/'
-#     response_logged_in = logged_in_client.get(url)
-#     response_logged_out = logged_out_client.get(url)
-#
-#     assert response_logged_in.status_code == 200
-#     assert response_logged_out.status_code == 302
-#     assert response_logged_out.headers['Location'] == url_for('login', next=url)
+def test_homepage_access(logged_in_client, logged_out_client, app_client):
+    response_logged_in = logged_in_client.get('/')
+    response_logged_out = logged_out_client.get('/')
+
+    assert response_logged_in.status_code == 200
+    assert response_logged_out.status_code == 200
+
+
+def test_entry_editing_and_creation_access(logged_in_client, logged_out_client, app_client):
+    url = '/post/'
+    response_logged_in = logged_in_client.get(url)
+    response_logged_out = logged_out_client.get(url)
+
+    assert response_logged_in.status_code == 200
+    assert response_logged_out.status_code == 302
+    assert response_logged_out.headers['Location'] == url_for('login', next=url)
+
+
+def test_list_drafts_access(logged_in_client, logged_out_client, app_client):
+    url = '/drafts/'
+    response_logged_in = logged_in_client.get(url)
+    response_logged_out = logged_out_client.get(url)
+
+    assert response_logged_in.status_code == 200
+    assert response_logged_out.status_code == 302
+    assert response_logged_out.headers['Location'] == url_for('login', next=url)
 
 
 def test_delete_entry(logged_in_client, app_client):
