@@ -104,46 +104,45 @@ from blog import db, app
 from blog.models import Entry
 from config import TestConfig
 
-
-import pytest
-from flask import Flask
-from blog import db, app
-from blog.models import Entry
-from config import TestConfig
-from sqlalchemy import inspect
-
-
-@pytest.fixture(scope='function')
-def app_client():
-    app.config.from_object(TestConfig)
-    app.testing = True
-    client = app.test_client()
-
-    with app.app_context():
-        db.create_all()
-
-    yield client
-
-    with app.app_context():
-        db.drop_all()
-
-
-@pytest.fixture
-def logged_in_client():
-    with app.test_client() as client:
-        with client.session_transaction() as session:
-            session['logged_in'] = True
-        yield client
-
-
-def test_database_setup_and_teardown(app_client):
-    with app.app_context():
-        inspector = inspect(db.engine)
-        assert 'entry' in inspector.get_table_names()  # Replace 'entry' with your table name
-
-
-# def test_delete_entry(app_client):
-#     client = app_client
+# WORKS
+# import pytest
+# from flask import Flask
+# from blog import db, app
+# from blog.models import Entry
+# from config import TestConfig
+# from sqlalchemy import inspect
+#
+#
+# @pytest.fixture(scope='function')
+# def app_client():
+#     app.config.from_object(TestConfig)
+#     app.testing = True
+#     client = app.test_client()
+#
+#     with app.app_context():
+#         db.create_all()
+#
+#     yield client
+#
+#     with app.app_context():
+#         db.drop_all()
+#
+#
+# @pytest.fixture
+# def logged_in_client():
+#     with app.test_client() as client:
+#         with client.session_transaction() as session:
+#             session['logged_in'] = True
+#         yield client
+#
+#
+# def test_database_setup_and_teardown(app_client):
+#     with app.app_context():
+#         inspector = inspect(db.engine)
+#         assert 'entry' in inspector.get_table_names()  # Replace 'entry' with your table name
+#
+#
+# def test_delete_entry(app_client, logged_in_client):
 #     with app.app_context():  # Activate the app context for database operations
 #         # Create an entry
 #         entry = Entry(title='Test Title', body='Test Body', is_published=True)
@@ -154,32 +153,7 @@ def test_database_setup_and_teardown(app_client):
 #         entry_id = entry.id
 #
 #         # Delete the entry
-#         response = client.post(f'/delete/{entry_id}')
+#         response = logged_in_client.post(f'/delete/{entry_id}')
 #
-#         # deleted_entry = Entry.query.get(entry_id)
-#         # if deleted_entry:
-#         #     print(
-#         #         f"Deleted Entry: ID={deleted_entry.id}, Title='{deleted_entry.title}', Body='{deleted_entry.body}', Published={deleted_entry.is_published}")
-#         # else:
-#         #     print("Entry was successfully deleted")
-#
-#         # Check if the entry is deleted successfully
 #         assert response.status_code == 302  # Redirects to index after deletion
 #         assert Entry.query.get(entry_id) is None
-#         # Print the content of the entry for verification
-
-def test_delete_entry(app_client, logged_in_client):
-    with app.app_context():  # Activate the app context for database operations
-        # Create an entry
-        entry = Entry(title='Test Title', body='Test Body', is_published=True)
-        db.session.add(entry)
-        db.session.commit()
-
-        # Get the entry ID for deletion
-        entry_id = entry.id
-
-        # Delete the entry
-        response = logged_in_client.post(f'/delete/{entry_id}')
-
-        assert response.status_code == 302  # Redirects to index after deletion
-        assert Entry.query.get(entry_id) is None
